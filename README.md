@@ -6,7 +6,9 @@
     - user module includes registration, authentication and change password functionality
     - _helper module includes general functions(database connection and user auth file)
 
-# Starting Point : app.js
+# Starting Point
+
+    - app.js
 
 # Assumptions
 
