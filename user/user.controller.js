@@ -7,7 +7,6 @@ const User = require("./user.model");
 async function createUser(req, res) {
     try {
         let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
         let user = await User.create({
             user_id: uuidv4(),
             email: req.body.email,
@@ -20,28 +19,24 @@ async function createUser(req, res) {
                 expiresIn: 86400 // expires in 24 hours
             }
         );
-        res.status(201).json({
+        return res.status(201).json({
             message: "User created successful",
             token: token
         });
-    } catch (err) {
-        return res
-            .status(500)
-            .send("There was a problem registering the user.");
+    } catch (error) {
+        return res.status(500).json({
+            message: "There was a problem registering the user.",
+            error
+        });
     }
 }
 async function login(req, res) {
     try {
-        // let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-        // console.log(hashedPassword);
         let user = await User.findOne({
             email: req.body.email,
-            // password: hashedPassword,
             deleted_at: null
         });
-        console.log(user);
         const compare = await bcrypt.compare(req.body.password, user.password);
-        console.log(compare);
         if (!compare)
             return res.status(400).json({
                 message: "Invalid email or password",
@@ -55,9 +50,14 @@ async function login(req, res) {
                 expiresIn: 86400 // expires in 24 hours
             }
         );
-        return res.status(200).json({ auth: true, token: token });
-    } catch (err) {
-        return res.status(500).send("There was a problem logging in the user.");
+        return res
+            .status(200)
+            .json({ message: "User logged in successfully", token });
+    } catch (error) {
+        return res.status(500).json({
+            message: "There was a problem logging in the user.",
+            error
+        });
     }
 }
 async function changePassword(req, res) {
@@ -69,11 +69,12 @@ async function changePassword(req, res) {
         });
         return res
             .status(201)
-            .json({ message: "Password changed successfully", token: token });
-    } catch (err) {
-        return res
-            .status(500)
-            .send("There was a problem in changing the password");
+            .json({ message: "Password changed successfully" });
+    } catch (error) {
+        return res.status(500).json({
+            message: "There was a problem in changing the password",
+            error
+        });
     }
 }
 
