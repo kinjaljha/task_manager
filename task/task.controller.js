@@ -1,16 +1,16 @@
-const Task = require("../models/task.model");
+const Task = require("./task.model");
 const uuidv1 = require("uuid/v1");
 
 async function deleteTask(req, res) {
     try {
-        let old = { task_id: req.params.id };
+        let query = { task_id: req.params.id, assignee: req.user.email };
         date = Date.now();
-        var newvalues = { $set: { deleted_at: date } };
+        let newvalues = { $set: { deleted_at: date } };
 
-        let task = await Task.findOne(old);
+        let task = await Task.findOne(query);
         if (task.deleted_at)
             return res.status(404).json({ message: "Task Not Found" });
-        task = await Task.updateOne(old, newvalues);
+        task = await Task.updateOne(query, newvalues);
 
         if (!task.ok)
             return res
@@ -27,14 +27,14 @@ async function deleteTask(req, res) {
 
 async function updateTask(req, res) {
     try {
-        let old = { task_id: req.params.id };
-        var newvalues = { $set: req.body };
+        let query = { task_id: req.params.id, assignee: req.user.email };
+        let newvalues = { $set: req.body };
 
-        let task = await Task.findOne(old);
+        let task = await Task.findOne(query);
         if (task.deleted_at)
             return res.status(404).json({ message: "Task Not Found" });
 
-        task = await Task.updateOne(old, newvalues);
+        task = await Task.updateOne(query, newvalues);
         if (!task.ok)
             return res
                 .status(400)
@@ -50,7 +50,7 @@ async function updateTask(req, res) {
 
 async function getTasks(req, res) {
     try {
-        let query = { deleted_at: null };
+        let query = { deleted_at: null, assignee: req.user.email };
         let projections = {
             task_id: 1,
             task_name: 1,
@@ -70,7 +70,11 @@ async function getTasks(req, res) {
 
 async function getTask(req, res) {
     try {
-        let query = { task_id: req.params.id, deleted_at: null };
+        let query = {
+            task_id: req.params.id,
+            deleted_at: null,
+            assignee: req.user.email
+        };
         let projections = {
             task_id: 1,
             task_name: 1,
@@ -96,7 +100,7 @@ async function createTask(req, res) {
             task_id: uuidv1(),
             task_name: req.body.task_name,
             assigned_member: req.body.assigned_member,
-            assignee: req.body.assignee,
+            assignee: req.user.email,
             status: req.body.status
         });
 
