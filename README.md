@@ -21,7 +21,7 @@
     - In command line enter following command
         $ git clone https://github.com/kinjaljha/task_manager.git
     - After cloning
-        $ npm init
+        $ npm install
     - Then
         $ npm start
 
